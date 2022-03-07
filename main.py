@@ -2,6 +2,7 @@ import requests
 
 r = requests.get("https://www.gutenberg.org/cache/epub/67477/pg67477.txt").text
 
+
 def count_encounters_in_text(text_object, word):
     lines = text_object.split("\n\r")
     total = 0
