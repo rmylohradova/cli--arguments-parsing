@@ -5,7 +5,7 @@ text_link = sys.argv[1]
 r = requests.get(text_link).text
 word = sys.argv[2]
 def count_encounters_in_text(text_object, word):
-    lines = r.split("\n\r")
+    lines = text_object.split("\n\r")
     total = 0
     for index, line in enumerate(lines):
         encounters = line.count(word)
