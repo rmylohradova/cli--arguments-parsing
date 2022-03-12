@@ -1,6 +1,6 @@
 import requests
 import sys
-from count_lib import count_encounters_in_text
+from count_lib import count_encounters_in_text, counting_total
 
 
 def count_encounters_batch():
@@ -12,7 +12,10 @@ def count_encounters_batch():
             link = line.rstrip("\n")
             print("Analysing a new text from", link)
             r = requests.get(link).text
-            count_encounters_in_text(r, word_to_count)
+            encounters_list = count_encounters_in_text(r, word_to_count)
+            for i in range(0, len(encounters_list)):
+                print('{i}th paragraph: {e}'.format(i=i, e=encounters_list[i]))
+            print("The total count for this text", counting_total(encounters_list))
 
 if __name__ == '__main__':
     count_encounters_batch()

@@ -1,13 +1,13 @@
 import requests
-import sys
 
 
 def count_encounters_in_text(text_object, word):
     lines = text_object.split("\n\r")
-    total = 0
-    for index, line in enumerate(lines):
-        encounters = line.count(word)
-        total = total + encounters
-        print('{i}th paragraph: {e}'.format(i=index, e=encounters))
-    print('In the whole text: {t} encounters'.format(t=total))
+    encounters_list = []
+    for line in lines:
+        encounters_in_line = line.count(word)
+        encounters_list.append(encounters_in_line)
+    return encounters_list
 
+def counting_total(list):
+    return sum(list)
