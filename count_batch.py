@@ -5,13 +5,20 @@ import csv
 import re
 
 
+class InvalidArgument(Exception):
+    pass
+
+
+class InvalidFileName(Exception):
+    pass
+
+
 def count_encounters_batch():
     word_to_count = sys.argv[1]
     links_file = sys.argv[2]
-    output_format = sys.argv[3]
-    class InvalidArgument(Exception):
-        pass
-    if output_format != '--output-format=print' and output_format != '--output-format=csv':
+    output_format_input = sys.argv[3]
+    option_name = re.search('^--output-format=(\w)*$', output_format_input)
+    if not option_name:
         raise InvalidArgument('Error. Try syntax: --output-format=print or --output-format=csv')
     with open(links_file, 'r') as f:
         lines = f.readlines()
@@ -19,15 +26,14 @@ def count_encounters_batch():
             link = line.rstrip("\n")
             r = requests.get(link).text
             encounters_list = count_encounters_in_text(r, word_to_count)
-            if 'print' in output_format:
+            output_format = output_format_input.split('=')[-1]
+            if output_format == 'print':
                 print("Analysing a new text from", link)
                 for i in range(0, len(encounters_list)):
                     print('{i}th paragraph: {e}'.format(i=i, e=encounters_list[i]))
                 print("The total count for this text", counting_total(encounters_list))
-            elif 'csv' in output_format:
+            elif output_format == 'csv':
                 filename_input = sys.argv[4]
-                class InvalidFileName(Exception):
-                    pass
                 match = re.search('^--filename=(\w)*(.)[c][s][v]$', filename_input)
                 if not match:
                     raise InvalidFileName("Error. Try syntax: --filename=*.csv")
