@@ -31,6 +31,7 @@ def list_output_format(input_list, word, link):
         raise InvalidArgument('Error. Try syntax: --output-output_format=print or --output-output_format=csv')
     output_format = output_format_input.split('=')[-1]
     if output_format == 'print':
+        print("Analysing a new text from", link)
         for i in range(0, len(input_list)):
             print('{i}th paragraph: {e}'.format(i=i, e=input_list[i]))
         print("The total count for this text", counting_total(input_list))
