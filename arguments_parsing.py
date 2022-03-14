@@ -22,6 +22,28 @@ def write_to_csv(file, link, list, word):
         return file
 
 
+def write_to_sqlite(file, url, list, word):
+    connection = sqlite3.connect(file)
+    cur = connection.cursor()
+    create_table = """CREATE TABLE IF NOT EXISTS encounters (
+                            url VARCHAR(255) NOT NULL,
+                            word CHAR(30),
+                            line_index INT,
+                            count INT
+                           ); """
+    cur.execute(create_table)
+    cur.execute('SELECT * FROM encounters WHERE url=? and word=?', (url, word))
+    exist = cur.fetchone()
+    print(exist)
+    if exist is None:
+        for index, count in enumerate(list):
+            cur.execute('INSERT INTO encounters VALUES (?,?,?,?)', (url, word, index, count))
+    else:
+        pass
+    connection.commit()
+    connection.close()
+    return connection
+
 def arg_parse_count():
     args = parser.parse_args()
     with open(args.links_file, 'r') as f:
@@ -39,28 +61,7 @@ def arg_parse_count():
             elif args.output_format == 'csv':
                 write_to_csv(args.filename, link, occur_list, args.word)
             elif args.output_format == 'sqlite':
-                sqlite_connection = sqlite3.connect(args.filename)
-                cursor = sqlite_connection.cursor()
-                create_table = """CREATE TABLE IF NOT EXISTS encounters (
-                        url VARCHAR(255) NOT NULL,
-                        word CHAR(30),
-                        line_index INT,
-                        count INT
-                       ); """
-                cursor.execute(create_table)
-                cursor.execute('SELECT * FROM encounters WHERE url=? and word=?', (link, args.word))
-                exist = cursor.fetchone()
-                print(exist)
-                if exist is None:
-                    for index, count in enumerate(occur_list):
-                        cursor.execute('INSERT INTO encounters VALUES (?,?,?,?)', (link, args.word, index, count))
-                else:
-                    pass
-            data = cursor.execute("""SELECT * FROM encounters""")
-            for row in data:
-                print(row)
-            sqlite_connection.commit()
-            sqlite_connection.close()
+                write_to_sqlite(args.filename, link, occur_list, args.word)
 
 
 if __name__ == '__main__':
