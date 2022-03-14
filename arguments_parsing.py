@@ -26,10 +26,10 @@ def write_to_sqlite(file, url, list, word):
     connection = sqlite3.connect(file)
     cur = connection.cursor()
     create_table = """CREATE TABLE IF NOT EXISTS encounters (
-                            url VARCHAR(255) NOT NULL,
-                            word CHAR(30),
-                            line_index INT,
-                            count INT
+                            url TEXT,
+                            word TEXT,
+                            line_index INTEGER,
+                            count INTEGER
                            ); """
     cur.execute(create_table)
     cur.execute('SELECT * FROM encounters WHERE url=? and word=?', (url, word))
