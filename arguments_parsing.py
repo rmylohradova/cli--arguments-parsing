@@ -34,7 +34,6 @@ def write_to_sqlite(file, url, list, word):
     cur.execute(create_table)
     cur.execute('SELECT * FROM encounters WHERE url=? and word=?', (url, word))
     exist = cur.fetchone()
-    print(exist)
     if exist is None:
         for index, count in enumerate(list):
             cur.execute('INSERT INTO encounters VALUES (?,?,?,?)', (url, word, index, count))
