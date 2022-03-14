@@ -37,11 +37,8 @@ def write_to_sqlite(file, url, list, word):
     if exist is None:
         for index, count in enumerate(list):
             cur.execute('INSERT INTO encounters VALUES (?,?,?,?)', (url, word, index, count))
-    else:
-        pass
     connection.commit()
     connection.close()
-    return connection
 
 def arg_parse_count():
     args = parser.parse_args()
