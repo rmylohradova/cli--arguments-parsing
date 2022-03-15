@@ -74,36 +74,28 @@ def arg_parse_count():
                                             source_id INTEGER,
                                             line_index INTEGER, 
                                             counts INTEGER)''')
-                cursor.execute('SELECT * FROM sources WHERE url=(?)', (link,))
+
+                cursor.execute('SELECT id FROM sources WHERE url=(?)', (link,))
                 exist_link = cursor.fetchone()
-                cursor.execute('SELECT * FROM search_words WHERE word=(?)', (args.word,))
+                if exist_link is None:
+                    cursor.execute("INSERT INTO sources(url) VALUES (?)", (link,))
+                    link_id = cursor.lastrowid
+                else:
+                    link_id = exist_link[0]
+
+                cursor.execute('SELECT id FROM search_words WHERE word=(?)', (args.word,))
                 exist_word = cursor.fetchone()
-                if exist_link is None and exist_word is None:
+                if exist_word is None:
                     cursor.execute("INSERT INTO search_words(word) VALUES (?)", (args.word,))
-                    cursor.execute("INSERT INTO sources(url) VALUES (?)", (link,))
-                    word_id = cursor.execute("SELECT id FROM search_words WHERE word=(?)", (args.word,)).fetchone()[0]
-                    link_id = cursor.execute("SELECT id FROM sources WHERE url=(?)", (link,)).fetchone()[0]
+                    word_id = cursor.lastrowid
+                else:
+                    word_id = exist_word[0]
+
+                if exist_link is None or exist_word is None:
                     for index, count in enumerate(occur_list):
-                        cursor.execute("INSERT INTO counts VALUES (?,?,?,?)", (word_id, link_id, index, count))
-                elif exist_link is None and exist_word:
-                    cursor.execute("INSERT INTO sources(url) VALUES (?)", (link,))
-                    link_id = cursor.execute("SELECT id FROM sources WHERE url=(?)", (link,)).fetchone()[0]
-                    word_id = cursor.execute("SELECT id FROM search_words WHERE word=(?)", (args.word,)).fetchone()[0]
-                    for index, count in enumerate(occur_list):
-                        cursor.execute("INSERT INTO counts VALUES (?,?,?,?)", (word_id, link_id, index, count))
-                elif exist_link and exist_word is None:
-                    cursor.execute("INSERT INTO search_words(word) VALUES (?)", (args.word,))
-                    link_id = cursor.execute("SELECT id FROM sources WHERE url=(?)", (link,)).fetchone()[0]
-                    word_id = cursor.execute("SELECT id FROM search_words WHERE word=(?)", (args.word,)).fetchone()[
-                        0]
-                    for index, count in enumerate(occur_list):
-                        cursor.execute("INSERT INTO counts VALUES (?,?,?,?)", (word_id, link_id, index, count))
-                elif exist_link and exist_word:
-                    link_id = cursor.execute("SELECT id FROM sources WHERE url=(?)", (link,)).fetchone()[0]
-                    word_id = cursor.execute("SELECT id FROM search_words WHERE word=(?)", (args.word,)).fetchone()[
-                        0]
-                    for index, count in enumerate(occur_list):
-                        cursor.execute("INSERT INTO counts VALUES (?,?,?,?)", (word_id, link_id, index, count))
+                        cursor.execute("INSERT INTO counts VALUES (?,?,?,?)",
+                                       (word_id, link_id, index, count))
+
                 if args.sqlite_table:
                     table = """select search_words.word, counts.line_index,
                         counts.counts, sources.url from counts inner 
